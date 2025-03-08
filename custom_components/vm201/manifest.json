@@ -1,17 +1,17 @@
 {
-  "domain": "msp_integration_101_template",
-  "name": "MSP Integration 101 Template Example",
+  "domain": "velleman_vm201",
+  "name": "Vellemand VM201",
   "codeowners": [
-    "@msp1974"
+    "@nyllian"
   ],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/msp1974/HAIntegrationExamples",
+  "documentation": "https://github.com/Nyllian/Hass-vm201",
   "homekit": {},
   "iot_class": "local_polling",
   "requirements": [],
   "single_config_entry": false,
   "ssdp": [],
-  "version": "1.0.1",
+  "version": "0.0.1",
   "zeroconf": []
 }
