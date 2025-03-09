@@ -9,6 +9,9 @@ from enum import StrEnum
 import logging
 from random import choice, randrange
 
+from http.client import HTTPConnection
+from base64 import b64encode
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -60,7 +63,16 @@ class API:
 
     def connect(self) -> bool:
         """Connect to api."""
-        if self.user == "test" and self.pwd == "1234":
+        # Connect to the VM201 board
+        token = b64encode(f"{self.username}:{self.password}".encode('utf-8')).decode("ascii")
+        baseAuthToken = f'Basic {token}'
+
+        req = HTTPConnection(self.host)
+        baseHeaders = { 'Authorization' : baseAuthToken }
+        req.request('GET', '/', headers=baseHeaders)
+        res = req.getresponse()
+        
+        if res.code == 200:
             self.connected = True
             return True
         raise APIAuthError("Error connecting to api. Invalid username or password.")
@@ -72,6 +84,7 @@ class API:
 
     def get_devices(self) -> list[Device]:
         """Get devices on api."""
+        
         return [
             Device(
                 device_id=device.get("id"),
