@@ -64,7 +64,7 @@ class API:
     def connect(self) -> bool:
         """Connect to api."""
         # Connect to the VM201 board
-        token = b64encode(f"{self.username}:{self.password}".encode('utf-8')).decode("ascii")
+        token = b64encode(f"{self.user}:{self.pwd}".encode('utf-8')).decode("ascii")
         baseAuthToken = f'Basic {token}'
 
         req = HTTPConnection(self.host)
@@ -84,7 +84,7 @@ class API:
 
     def get_devices(self) -> list[Device]:
         """Get devices on api."""
-        
+
         return [
             Device(
                 device_id=device.get("id"),
