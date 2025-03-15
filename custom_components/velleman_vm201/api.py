@@ -1,8 +1,4 @@
-"""API Placeholder.
-
-You should create your api seperately and have it hosted on PYPI.  This is included here for the sole purpose
-of making this example code executable.
-"""
+"""API Placeholder."""
 
 from dataclasses import dataclass
 from enum import StrEnum

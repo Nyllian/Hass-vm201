@@ -1,4 +1,4 @@
-"""Config flow for Integration 101 Template integration."""
+"""Config flow for Velleman VM201 integration."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ _LOGGER = logging.getLogger(__name__)
 # TODO adjust the data schema to the data that you need
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_HOST, description={"suggested_value": "192.168.0.6"}): str,
+        vol.Required(CONF_HOST, description={"suggested_value": ""}): str,
         vol.Required(CONF_USERNAME, description={"suggested_value": ""}): str,
         vol.Required(CONF_PASSWORD, description={"suggested_value": ""}): str,
     }
@@ -59,11 +59,11 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
         raise InvalidAuth from err
     except APIConnectionError as err:
         raise CannotConnect from err
-    return {"title": f"Example Integration - {data[CONF_HOST]}"}
+    return {"title": f"Velleman VM201 - {data[CONF_HOST]}"}
 
 
 class ExampleConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Example Integration."""
+    """Handle a config flow for Velleman VM201."""
 
     VERSION = 1
     _input_data: dict[str, Any]

@@ -1,4 +1,4 @@
-"""Integration 101 Template integration using DataUpdateCoordinator."""
+"""Velleman VM201 integration using DataUpdateCoordinator."""
 
 from dataclasses import dataclass
 from datetime import timedelta
