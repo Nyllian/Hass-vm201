@@ -142,8 +142,12 @@ class ExampleConfigFlow(ConfigFlow, domain=DOMAIN):
                 )
         return self.async_show_form(
             step_id="reconfigure",
+            # TODO: Allow reconfigure of switch behaviour?
             data_schema=vol.Schema(
                 {
+                    vol.Required(
+                        CONF_HOST, default=config_entry.data[CONF_HOST]
+                    ): str,
                     vol.Required(
                         CONF_USERNAME, default=config_entry.data[CONF_USERNAME]
                     ): str,

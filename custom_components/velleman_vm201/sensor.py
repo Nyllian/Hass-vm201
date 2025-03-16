@@ -34,7 +34,7 @@ async def async_setup_entry(
     # to a list for each one.
     # This maybe different in your specific case, depending on how your data is structured
     sensors = [
-        ExampleSensor(coordinator, device)
+        VellemanSensor(coordinator, device)
         for device in coordinator.data.devices
         if device.device_type == DeviceType.TEMP_SENSOR
     ]
@@ -43,7 +43,7 @@ async def async_setup_entry(
     async_add_entities(sensors)
 
 
-class ExampleSensor(CoordinatorEntity, SensorEntity):
+class VellemanSensor(CoordinatorEntity, SensorEntity):
     """Implementation of a sensor."""
 
     def __init__(self, coordinator: VellemanCoordinator, device: Device) -> None:

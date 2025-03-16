@@ -21,13 +21,7 @@ class DeviceType(StrEnum):
 
 DEVICES = [
     {"id": 1, "type": DeviceType.TEMP_SENSOR},
-    {"id": 2, "type": DeviceType.TEMP_SENSOR},
-    {"id": 3, "type": DeviceType.TEMP_SENSOR},
-    {"id": 4, "type": DeviceType.TEMP_SENSOR},
     {"id": 1, "type": DeviceType.DOOR_SENSOR},
-    {"id": 2, "type": DeviceType.DOOR_SENSOR},
-    {"id": 3, "type": DeviceType.DOOR_SENSOR},
-    {"id": 4, "type": DeviceType.DOOR_SENSOR},
 ]
 
 
@@ -57,16 +51,20 @@ class API:
         """Return the name of the controller."""
         return self.host.replace(".", "_")
 
+    def get_request(self, method, url) -> HTTPConnection.HTTPResponse:
+        """Get a request object"""
+        token = b64encode(f"{self.user}:{self.pwd}".encode('utf-8')).decode("ascii")
+        baseAuthToken = f'Basic {token}'
+        
+        req = HTTPConnection(self.host)
+        baseHeaders = { 'Authorization' : baseAuthToken }
+        req.request(method, url, headers=baseHeaders)
+        return req.getresponse()
+
     def connect(self) -> bool:
         """Connect to api."""
         # Connect to the VM201 board
-        token = b64encode(f"{self.user}:{self.pwd}".encode('utf-8')).decode("ascii")
-        baseAuthToken = f'Basic {token}'
-
-        req = HTTPConnection(self.host)
-        baseHeaders = { 'Authorization' : baseAuthToken }
-        req.request('GET', '/', headers=baseHeaders)
-        res = req.getresponse()
+        res = get_request(self, "GET", "/")
         
         if res.code == 200:
             self.connected = True
@@ -80,7 +78,15 @@ class API:
 
     def get_devices(self) -> list[Device]:
         """Get devices on api."""
+        # Do an API call te retrieve all the devices
+        # 8 Output switches (type should be configurable?)
+        #    As there are on_off switches
+        #    As there are toggle switches
+        # 8 Output sensors (state of switch)
+        # 1 Input sensor
 
+
+        #This will return an array of all the devices
         return [
             Device(
                 device_id=device.get("id"),
