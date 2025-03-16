@@ -30,7 +30,7 @@ class RuntimeData:
 
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: MyConfigEntry) -> bool:
-    """Set up Example Integration from a config entry."""
+    """Set up Velleman Integration from a config entry."""
 
     # Initialise the coordinator that manages data updates from your api.
     # This is defined in coordinator.py

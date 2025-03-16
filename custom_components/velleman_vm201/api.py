@@ -24,8 +24,8 @@ class DeviceType(StrEnum):
 
 
 DEVICES = [
-    {"id": 1, "type": DeviceType.TEMP_SENSOR},
-    {"id": 1, "type": DeviceType.DOOR_SENSOR},
+    {"id": 99, "type": DeviceType.TEMP_SENSOR},
+    {"id": 99, "type": DeviceType.DOOR_SENSOR},
 ]
 
 
@@ -92,6 +92,21 @@ class API:
 
         devices = []
         htmlContent = BeautifulSoup(self.get_request("GET", "/names.html").read(), 'html.parser')
+        return [
+            Device(device_id=el.find("input")["name"][-2:-1],
+                device_unique_id=self.get_device_unique_id(
+                    el.find("input")["name"][-2:-1],
+                    el.getText()[0:el.getText().find(" ")].lower()
+                ),
+                device_type=el.getText()[0:el.getText().find(" ")].lower(),
+                name=el.find("input")["value"].replace(" ", "_"),
+                state=self.get_device_value(
+                    el.find("input")["name"][-2:-1],
+                    el.getText()[0:el.getText().find(" ")].lower()
+                )
+            )
+            for el in htmlContent.select("div#content p:not([class])")
+        ]
         for el in htmlContent.select("div#content p:not([class])"):
             devId = el.find("input")["name"][-2:-1]
             devType = el.getText()[0:el.getText().find(" ")].lower()
@@ -122,6 +137,20 @@ class API:
             )
             for device in DEVICES
         )
+
+        #This will return an array of all the devices
+        return [
+            Device(
+                device_id=device.get("id"),
+                device_unique_id=self.get_device_unique_id(
+                    device.get("id"), device.get("type")
+                ),
+                device_type=device.get("type"),
+                name=self.get_device_name(device.get("id"), device.get("type")),
+                state=self.get_device_value(device.get("id"), device.get("type")),
+            )
+            for device in DEVICES
+        ]
 
         return devices
 

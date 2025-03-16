@@ -28,6 +28,9 @@ async def async_setup_entry(
     # This gets the data update coordinator from the config entry runtime data as specified in your __init__.py
     coordinator: VellemanCoordinator = config_entry.runtime_data.coordinator
 
+    for d in coordinator.data.devices:
+        _LOGGER.debug("xx: %s", d)
+
     # Enumerate all the binary sensors in your data value from your DataUpdateCoordinator and add an instance of your binary sensor class
     # to a list for each one.
     # This maybe different in your specific case, depending on how your data is structured
