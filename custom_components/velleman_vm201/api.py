@@ -6,14 +6,17 @@ import logging
 from random import choice, randrange
 
 from http.client import HTTPConnection
+from http.client import HTTPResponse
 from base64 import b64encode
+from bs4 import BeautifulSoup
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class DeviceType(StrEnum):
     """Device types."""
-
+    INPUT = "input"
+    OUTPUT = "output"
     TEMP_SENSOR = "temp_sensor"
     DOOR_SENSOR = "door_sensor"
     OTHER = "other"
@@ -28,6 +31,7 @@ DEVICES = [
 @dataclass
 class Device:
     """API device."""
+    # name - value of the element (this can change...)
 
     device_id: int
     device_unique_id: str
@@ -51,11 +55,11 @@ class API:
         """Return the name of the controller."""
         return self.host.replace(".", "_")
 
-    def get_request(self, method, url) -> HTTPConnection.HTTPResponse:
+    def get_request(self, method, url) -> HTTPResponse:
         """Get a request object"""
         token = b64encode(f"{self.user}:{self.pwd}".encode('utf-8')).decode("ascii")
         baseAuthToken = f'Basic {token}'
-        
+
         req = HTTPConnection(self.host)
         baseHeaders = { 'Authorization' : baseAuthToken }
         req.request(method, url, headers=baseHeaders)
@@ -64,7 +68,7 @@ class API:
     def connect(self) -> bool:
         """Connect to api."""
         # Connect to the VM201 board
-        res = get_request(self, "GET", "/")
+        res = self.get_request("GET", "/")
         
         if res.code == 200:
             self.connected = True
@@ -85,6 +89,25 @@ class API:
         # 8 Output sensors (state of switch)
         # 1 Input sensor
 
+        devices = []
+        htmlContent = BeautifulSoup(self.get_request("GET", "/names.html").read(), 'html.parser')
+        for el in htmlContent.select("div#content p:not([class])"):
+            devId = el.find("input")["name"][-2:-1]
+            devType = el.getText()[0:el.getText().find(" ")].lower()
+            devName = el.find("input")["value"].replace(" ", "_")
+
+            devices.append(
+                Device(device_id=devId,
+                   device_unique_id=self.get_device_unique_id(devId, devType),
+                   device_type=devType,
+                   name=devName
+                )
+            )
+            #el.find("input")["name"].replace("[", ".").replace("]", "")
+            #el.find("input")["value"].replace(" ", "_")
+            #el.find("input")["name"][-2:-1]
+
+        return devices
 
         #This will return an array of all the devices
         return [
@@ -106,6 +129,10 @@ class API:
             return f"{self.controller_name}_D{device_id}"
         if device_type == DeviceType.TEMP_SENSOR:
             return f"{self.controller_name}_T{device_id}"
+        if device_type == DeviceType.INPUT:
+            return f"{self.controller_name}_I{device_id}"
+        if device_type == DeviceType.OUTPUT:
+            return f"{self.controller_name}_O{device_id}"
         return f"{self.controller_name}_Z{device_id}"
 
     def get_device_name(self, device_id: str, device_type: DeviceType) -> str:

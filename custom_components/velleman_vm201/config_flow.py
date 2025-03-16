@@ -27,7 +27,6 @@ from .const import DEFAULT_SCAN_INTERVAL, DOMAIN, MIN_SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
-# TODO adjust the data schema to the data that you need
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_HOST, description={"suggested_value": ""}): str,
@@ -62,7 +61,7 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     return {"title": f"Velleman VM201 - {data[CONF_HOST]}"}
 
 
-class ExampleConfigFlow(ConfigFlow, domain=DOMAIN):
+class VellemanConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Velleman VM201."""
 
     VERSION = 1
@@ -72,9 +71,9 @@ class ExampleConfigFlow(ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry):
         """Get the options flow for this handler."""
-        # Remove this method and the ExampleOptionsFlowHandler class
+        # Remove this method and the VellemanOptionsFlowHandler class
         # if you do not want any options for your integration.
-        return ExampleOptionsFlowHandler(config_entry)
+        return VellemanOptionsFlowHandler(config_entry)
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -142,7 +141,6 @@ class ExampleConfigFlow(ConfigFlow, domain=DOMAIN):
                 )
         return self.async_show_form(
             step_id="reconfigure",
-            # TODO: Allow reconfigure of switch behaviour?
             data_schema=vol.Schema(
                 {
                     vol.Required(
@@ -158,7 +156,7 @@ class ExampleConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
 
-class ExampleOptionsFlowHandler(OptionsFlow):
+class VellemanOptionsFlowHandler(OptionsFlow):
     """Handles the options flow."""
 
     def __init__(self, config_entry: ConfigEntry) -> None:
@@ -175,6 +173,7 @@ class ExampleOptionsFlowHandler(OptionsFlow):
         # It is recommended to prepopulate options fields with default values if available.
         # These will be the same default values you use on your coordinator for setting variable values
         # if the option has not been set.
+        # TODO: Reconfigure
         data_schema = vol.Schema(
             {
                 vol.Required(
