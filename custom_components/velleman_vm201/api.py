@@ -117,12 +117,13 @@ class API:
     def get_device_info(self) -> VMDeviceInfo:
         """Return the device info properties"""
         htmlContent = BeautifulSoup(self.get_request("GET", "/about.html").read(), 'html.parser')
-        return VMDeviceInfo(
-            name=htmlContent.find("h2").getText(),
-            manufacturer=htmlContent.find('div', { "id" : "footer" }).getText().split(" ")[3],
-            model=htmlContent.find("h1").getText(),
-            version=htmlContent.find("p").getText().split(": ")[1]
-        )
+        vmDeviceInfo = VMDeviceInfo()
+        vmDeviceInfo.name = htmlContent.find("h2").getText()
+        vmDeviceInfo.manufacturer = " ".join(htmlContent.find('div', { "id" : "footer" }).getText().split(" ")[-2:])
+        vmDeviceInfo.model = htmlContent.find("h1").getText()
+        vmDeviceInfo.version = htmlContent.find("p").getText().split(": ")[1]
+        
+        return vmDeviceInfo
 
 
     def get_device_unique_id(self, device_id: str, device_type: DeviceType) -> str:
