@@ -70,7 +70,7 @@ class VellemanCoordinator(DataUpdateCoordinator):
             if not self.api.connected:
                 await self.hass.async_add_executor_job(self.api.connect)
             devices = await self.hass.async_add_executor_job(self.api.get_devices)
-            deviceInfo = await self.hass.async_add_execution_job(self.api.get_device_info)
+            deviceInfo = await self.hass.async_add_executor_job(self.api.get_device_info)
         except APIAuthError as err:
             _LOGGER.error(err)
             raise UpdateFailed(err) from err
