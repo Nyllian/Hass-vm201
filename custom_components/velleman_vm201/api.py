@@ -15,8 +15,9 @@ _LOGGER = logging.getLogger(__name__)
 
 class DeviceType(StrEnum):
     """Device types."""
-    INPUT = "input"
-    OUTPUT = "output"
+    
+    INPUT_SENSOR = "input"
+    OUTPUT_SENSOR = "output"
     TEMP_SENSOR = "temp_sensor"
     DOOR_SENSOR = "door_sensor"
     OTHER = "other"
@@ -101,7 +102,7 @@ class API:
                    device_unique_id=self.get_device_unique_id(devId, devType),
                    device_type=devType,
                    name=devName,
-                   state=choice([True, False])
+                   state=self.get_device_value(devId, devType)
                 )
             )
             #el.find("input")["name"].replace("[", ".").replace("]", "")
@@ -130,9 +131,9 @@ class API:
             return f"{self.controller_name}_D{device_id}"
         if device_type == DeviceType.TEMP_SENSOR:
             return f"{self.controller_name}_T{device_id}"
-        if device_type == DeviceType.INPUT:
+        if device_type == DeviceType.INPUT_SENSOR:
             return f"{self.controller_name}_I{device_id}"
-        if device_type == DeviceType.OUTPUT:
+        if device_type == DeviceType.OUTPUT_SENSOR:
             return f"{self.controller_name}_O{device_id}"
         return f"{self.controller_name}_Z{device_id}"
 
@@ -142,6 +143,10 @@ class API:
             return f"DoorSensor{device_id}"
         if device_type == DeviceType.TEMP_SENSOR:
             return f"TempSensor{device_id}"
+        if device_type == DeviceType.INPUT_SENSOR:
+            return f"InputSensor{device_id}"
+        if device_type == DeviceType.OUTPUT_SENSOR:
+            return f"OutputSensor{device_id}"
         return f"OtherSensor{device_id}"
 
     def get_device_value(self, device_id: str, device_type: DeviceType) -> int | bool:
@@ -150,6 +155,10 @@ class API:
             return choice([True, False])
         if device_type == DeviceType.TEMP_SENSOR:
             return randrange(15, 28)
+        if device_type == DeviceType.INPUT_SENSOR:
+            return choice([True, False])
+        if device_type == DeviceType.OUTPUT_SENSOR:
+            return choice([True, False])
         return randrange(1, 10)
 
 
