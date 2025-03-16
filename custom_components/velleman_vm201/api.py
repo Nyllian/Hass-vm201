@@ -51,11 +51,6 @@ class API:
         self.pwd = pwd
         self.connected: bool = False
 
-    @property
-    def controller_name(self) -> str:
-        """Return the name of the controller."""
-        return self.host.replace(".", "_")
-
     def get_request(self, method, url) -> HTTPResponse:
         """Get a request object"""
         token = b64encode(f"{self.user}:{self.pwd}".encode('utf-8')).decode("ascii")
@@ -64,7 +59,13 @@ class API:
         req = HTTPConnection(self.host)
         baseHeaders = { 'Authorization' : baseAuthToken }
         req.request(method, url, headers=baseHeaders)
+        
         return req.getresponse()
+
+    @property
+    def controller_name(self) -> str:
+        """Return the name of the controller."""
+        return "VM201" # self.host.replace(".", "_")
 
     def connect(self) -> bool:
         """Connect to api."""
@@ -92,54 +93,43 @@ class API:
 
         devices = []
         htmlContent = BeautifulSoup(self.get_request("GET", "/names.html").read(), 'html.parser')
-        return [
-            Device(device_id=el.find("input")["name"][-2:-1],
-                device_unique_id=self.get_device_unique_id(
-                    el.find("input")["name"][-2:-1],
-                    el.getText()[0:el.getText().find(" ")].lower()
-                ),
-                device_type=el.getText()[0:el.getText().find(" ")].lower(),
-                name=el.find("input")["value"].replace(" ", "_"),
-                state=self.get_device_value(
-                    el.find("input")["name"][-2:-1],
-                    el.getText()[0:el.getText().find(" ")].lower()
-                )
-            )
-            for el in htmlContent.select("div#content p:not([class])")
-        ]
+
+
+#        return [
+#            Device(device_id=el.find("input")["name"][-2:-1],
+#                device_unique_id=self.get_device_unique_id(
+#                    el.find("input")["name"][-2:-1],
+#                    el.getText()[0:el.getText().find(" ")].lower()
+#                ),
+#                device_type=el.getText()[0:el.getText().find(" ")].lower(),
+#                name=el.find("input")["value"].replace(" ", "_"),
+#                state=self.get_device_value(
+#                    el.find("input")["name"][-2:-1],
+#                    el.getText()[0:el.getText().find(" ")].lower()
+#                )
+#            )
+#            for el in htmlContent.select("div#content p:not([class])")
+#        ]
+
         for el in htmlContent.select("div#content p:not([class])"):
             devId = el.find("input")["name"][-2:-1]
             devType = el.getText()[0:el.getText().find(" ")].lower()
             devName = el.find("input")["value"].replace(" ", "_")
 
-            devices.append(
+            devices.append([
                 Device(device_id=devId,
                    device_unique_id=self.get_device_unique_id(devId, devType),
                    device_type=devType,
                    name=devName,
                    state=self.get_device_value(devId, devType)
                 )
-            )
+            ])
             #el.find("input")["name"].replace("[", ".").replace("]", "")
             #el.find("input")["value"].replace(" ", "_")
             #el.find("input")["name"][-2:-1]
 
         #This will return an array of all the devices
-        devices.append(
-                Device(
-                device_id=device.get("id"),
-                device_unique_id=self.get_device_unique_id(
-                    device.get("id"), device.get("type")
-                ),
-                device_type=device.get("type"),
-                name=self.get_device_name(device.get("id"), device.get("type")),
-                state=self.get_device_value(device.get("id"), device.get("type")),
-            )
-            for device in DEVICES
-        )
-
-        #This will return an array of all the devices
-        return [
+        devices.append([
             Device(
                 device_id=device.get("id"),
                 device_unique_id=self.get_device_unique_id(
@@ -148,9 +138,9 @@ class API:
                 device_type=device.get("type"),
                 name=self.get_device_name(device.get("id"), device.get("type")),
                 state=self.get_device_value(device.get("id"), device.get("type")),
-            )
+            )]
             for device in DEVICES
-        ]
+        )
 
         return devices
 
