@@ -5,8 +5,7 @@ from enum import StrEnum
 import logging
 from random import choice, randrange
 
-from http.client import HTTPConnection
-from http.client import HTTPResponse
+from http.client import (HTTPConnection, HTTPResponse)
 from base64 import b64encode
 from bs4 import BeautifulSoup
 
@@ -39,7 +38,6 @@ class Device:
     device_type: DeviceType
     name: str
     state: int | bool
-
 
 class API:
     """Class for example API."""
@@ -91,58 +89,35 @@ class API:
         # 8 Output sensors (state of switch)
         # 1 Input sensor
 
-        devices = []
         htmlContent = BeautifulSoup(self.get_request("GET", "/names.html").read(), 'html.parser')
 
-
-#        return [
-#            Device(device_id=el.find("input")["name"][-2:-1],
-#                device_unique_id=self.get_device_unique_id(
-#                    el.find("input")["name"][-2:-1],
-#                    el.getText()[0:el.getText().find(" ")].lower()
-#                ),
-#                device_type=el.getText()[0:el.getText().find(" ")].lower(),
-#                name=el.find("input")["value"].replace(" ", "_"),
-#                state=self.get_device_value(
-#                    el.find("input")["name"][-2:-1],
-#                    el.getText()[0:el.getText().find(" ")].lower()
-#                )
-#            )
-#            for el in htmlContent.select("div#content p:not([class])")
-#        ]
-
-        for el in htmlContent.select("div#content p:not([class])"):
-            devId = el.find("input")["name"][-2:-1]
-            devType = el.getText()[0:el.getText().find(" ")].lower()
-            devName = el.find("input")["value"].replace(" ", "_")
-
-            devices.append([
-                Device(device_id=devId,
-                   device_unique_id=self.get_device_unique_id(devId, devType),
-                   device_type=devType,
-                   name=devName,
-                   state=self.get_device_value(devId, devType)
-                )
-            ])
-            #el.find("input")["name"].replace("[", ".").replace("]", "")
-            #el.find("input")["value"].replace(" ", "_")
-            #el.find("input")["name"][-2:-1]
-
-        #This will return an array of all the devices
-        devices.append([
-            Device(
-                device_id=device.get("id"),
+        return [
+            Device(device_id=el.find("input")["name"][-2:-1],
                 device_unique_id=self.get_device_unique_id(
-                    device.get("id"), device.get("type")
+                    el.find("input")["name"][-2:-1],
+                    el.getText()[0:el.getText().find(" ")].lower()
                 ),
-                device_type=device.get("type"),
-                name=self.get_device_name(device.get("id"), device.get("type")),
-                state=self.get_device_value(device.get("id"), device.get("type")),
-            )]
-            for device in DEVICES
-        )
+                device_type=el.getText()[0:el.getText().find(" ")].lower(),
+                name=el.find("input")["value"].replace(" ", "_"),
+                state=self.get_device_value(
+                    el.find("input")["name"][-2:-1],
+                    el.getText()[0:el.getText().find(" ")].lower()
+                )
+            )
+            for el in htmlContent.select("div#content p:not([class])")
+        ]
 
-        return devices
+    def get_device_info(self) -> list[str]:
+        """Return the device info properties"""
+
+        htmlContent = BeautifulSoup(self.get_request("GET", "/about.html").read(), 'html.parser')
+        devInfo = {
+            "name" : htmlContent.find("h2").getText(),
+            "manufacturer" : htmlContent.find('div', { "id" : "footer" }).getText().split(" ")[3],
+            "model" : htmlContent.find("h1").getText(),
+            "sw_version" : htmlContent.find("p").getText().split(": ")[1]
+        }
+
 
     def get_device_unique_id(self, device_id: str, device_type: DeviceType) -> str:
         """Return a unique device id."""

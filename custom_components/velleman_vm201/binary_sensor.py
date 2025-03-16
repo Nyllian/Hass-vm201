@@ -1,4 +1,4 @@
-"""Interfaces with the Integration 101 Template api sensors."""
+"""Interfaces with the Velleman Integration sensors."""
 
 import logging
 
@@ -43,12 +43,13 @@ async def async_setup_entry(
 
 class ExampleBinarySensor(CoordinatorEntity, BinarySensorEntity):
     """Implementation of a sensor."""
-
+    
     def __init__(self, coordinator: VellemanCoordinator, device: Device) -> None:
         """Initialise sensor."""
         super().__init__(coordinator)
         self.device = device
         self.device_id = device.device_id
+        self.coordinator = coordinator
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -72,11 +73,16 @@ class ExampleBinarySensor(CoordinatorEntity, BinarySensorEntity):
         # Identifiers are what group entities into the same device.
         # If your device is created elsewhere, you can just specify the indentifiers parameter.
         # If your device connects via another device, add via_device parameter with the indentifiers of that device.
+        
+        aboutInfo = self.coordinator.api.get_device_info
+        
+
         return DeviceInfo(
-            name=f"ExampleDevice{self.device.device_id}",
-            manufacturer="ACME Manufacturer",
-            model="Door&Temp v1",
-            sw_version="1.0",
+            # name=f"ExampleDevice{self.device.device_id}",
+            name=aboutInfo["name"],
+            manufacturer=aboutInfo["manufacturer"],
+            model=aboutInfo["model"],
+            sw_version=aboutInfo["sw_version"],
             identifiers={
                 (
                     DOMAIN,
