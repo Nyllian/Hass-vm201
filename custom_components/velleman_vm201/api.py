@@ -92,7 +92,7 @@ class API:
         htmlContent = BeautifulSoup(self.get_request("GET", "/names.html").read(), 'html.parser')
 
         return [
-            Device(device_id=el.find("input")["name"][-2:-1],
+            Device(device_id=1, #el.find("input")["name"][-2:-1],
                 device_unique_id=self.get_device_unique_id(
                     el.find("input")["name"][-2:-1],
                     el.getText()[0:el.getText().find(" ")].lower()
@@ -117,6 +117,7 @@ class API:
             "model" : htmlContent.find("h1").getText(),
             "sw_version" : htmlContent.find("p").getText().split(": ")[1]
         }
+        return devInfo
 
 
     def get_device_unique_id(self, device_id: str, device_type: DeviceType) -> str:
