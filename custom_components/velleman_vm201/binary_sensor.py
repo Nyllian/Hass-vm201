@@ -34,7 +34,7 @@ async def async_setup_entry(
     binary_sensors = [
         ExampleBinarySensor(coordinator, device)
         for device in coordinator.data.devices
-        if device.device_type == DeviceType.DOOR_SENSOR
+        if device.device_type in [DeviceType.DOOR_SENSOR, DeviceType.INPUT, DeviceType.OUTPUT]
     ]
 
     # Create the binary sensors.

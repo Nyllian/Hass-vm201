@@ -100,18 +100,17 @@ class API:
                 Device(device_id=devId,
                    device_unique_id=self.get_device_unique_id(devId, devType),
                    device_type=devType,
-                   name=devName
+                   name=devName,
+                   state=choice([True, False])
                 )
             )
             #el.find("input")["name"].replace("[", ".").replace("]", "")
             #el.find("input")["value"].replace(" ", "_")
             #el.find("input")["name"][-2:-1]
 
-        return devices
-
         #This will return an array of all the devices
-        return [
-            Device(
+        devices.append(
+                Device(
                 device_id=device.get("id"),
                 device_unique_id=self.get_device_unique_id(
                     device.get("id"), device.get("type")
@@ -121,7 +120,9 @@ class API:
                 state=self.get_device_value(device.get("id"), device.get("type")),
             )
             for device in DEVICES
-        ]
+        )
+
+        return devices
 
     def get_device_unique_id(self, device_id: str, device_type: DeviceType) -> str:
         """Return a unique device id."""
