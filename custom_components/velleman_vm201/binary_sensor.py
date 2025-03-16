@@ -12,7 +12,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import MyConfigEntry
-from .api import Device, DeviceType
+from .api import Device, VMDeviceInfo, DeviceType
 from .const import DOMAIN
 from .coordinator import VellemanCoordinator
 
@@ -44,10 +44,11 @@ async def async_setup_entry(
 class ExampleBinarySensor(CoordinatorEntity, BinarySensorEntity):
     """Implementation of a sensor."""
     
-    def __init__(self, coordinator: VellemanCoordinator, device: Device) -> None:
+    def __init__(self, coordinator: VellemanCoordinator, device: Device, deviceInfo: VMDeviceInfo) -> None:
         """Initialise sensor."""
         super().__init__(coordinator)
         self.device = device
+        self.deviceInfo = deviceInfo
         self.device_id = device.device_id
         self.coordinator = coordinator
 
@@ -73,16 +74,13 @@ class ExampleBinarySensor(CoordinatorEntity, BinarySensorEntity):
         # Identifiers are what group entities into the same device.
         # If your device is created elsewhere, you can just specify the indentifiers parameter.
         # If your device connects via another device, add via_device parameter with the indentifiers of that device.
-        
-        aboutInfo = self.coordinator.api.get_device_info
-        
 
         return DeviceInfo(
             # name=f"ExampleDevice{self.device.device_id}",
-            name=aboutInfo["name"],
-            manufacturer=aboutInfo["manufacturer"],
-            model=aboutInfo["model"],
-            sw_version=aboutInfo["sw_version"],
+            name=self.deviceInfo.name,
+            manufacturer=self.deviceInfo.manufacturer,
+            model=self.deviceInfo.model,
+            sw_version=self.deviceInfo.version,
             identifiers={
                 (
                     DOMAIN,

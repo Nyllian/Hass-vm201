@@ -39,6 +39,13 @@ class Device:
     name: str
     state: int | bool
 
+class VMDeviceInfo:
+    """The device info details"""
+    name: str
+    manufacturer: str
+    model: str
+    version: str
+
 class API:
     """Class for example API."""
 
@@ -107,17 +114,15 @@ class API:
             for el in htmlContent.select("div#content p:not([class])")
         ]
 
-    def get_device_info(self) -> list[str]:
+    def get_device_info(self) -> VMDeviceInfo:
         """Return the device info properties"""
-
         htmlContent = BeautifulSoup(self.get_request("GET", "/about.html").read(), 'html.parser')
-        devInfo = {
-            "name" : htmlContent.find("h2").getText(),
-            "manufacturer" : htmlContent.find('div', { "id" : "footer" }).getText().split(" ")[3],
-            "model" : htmlContent.find("h1").getText(),
-            "sw_version" : htmlContent.find("p").getText().split(": ")[1]
-        }
-        return devInfo
+        return VMDeviceInfo(
+            name=htmlContent.find("h2").getText(),
+            manufacturer=htmlContent.find('div', { "id" : "footer" }).getText().split(" ")[3],
+            model=htmlContent.find("h1").getText(),
+            version=htmlContent.find("p").getText().split(": ")[1]
+        )
 
 
     def get_device_unique_id(self, device_id: str, device_type: DeviceType) -> str:

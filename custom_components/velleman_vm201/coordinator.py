@@ -14,7 +14,7 @@ from homeassistant.const import (
 from homeassistant.core import DOMAIN, HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import API, APIAuthError, Device, DeviceType
+from .api import API, APIAuthError, Device, VMDeviceInfo, DeviceType
 from .const import DEFAULT_SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
@@ -26,6 +26,7 @@ class VellemanAPIData:
 
     controller_name: str
     devices: list[Device]
+    deviceInfo: VMDeviceInfo
 
 
 class VellemanCoordinator(DataUpdateCoordinator):
@@ -69,6 +70,7 @@ class VellemanCoordinator(DataUpdateCoordinator):
             if not self.api.connected:
                 await self.hass.async_add_executor_job(self.api.connect)
             devices = await self.hass.async_add_executor_job(self.api.get_devices)
+            deviceInfo = await self.hass.async_add_execution_job(self.api.get_device_info)
         except APIAuthError as err:
             _LOGGER.error(err)
             raise UpdateFailed(err) from err
@@ -77,7 +79,7 @@ class VellemanCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"Error communicating with API: {err}") from err
 
         # What is returned here is stored in self.data by the DataUpdateCoordinator
-        return VellemanAPIData(self.api.controller_name, devices)
+        return VellemanAPIData(self.api.controller_name, devices, deviceInfo)
 
     def get_device_by_id(
         self, device_type: DeviceType, device_id: int
