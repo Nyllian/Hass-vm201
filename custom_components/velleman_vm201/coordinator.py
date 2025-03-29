@@ -70,6 +70,7 @@ class VellemanCoordinator(DataUpdateCoordinator):
             if not self.api.connected:
                 await self.hass.async_add_executor_job(self.api.connect)
             devices = await self.hass.async_add_executor_job(self.api.get_devices)
+            await self.hass.async_add_executor_job(self.api.update_device_states(devices))
             deviceInfo = await self.hass.async_add_executor_job(self.api.get_device_info)
         except APIAuthError as err:
             _LOGGER.error(err)
@@ -81,8 +82,8 @@ class VellemanCoordinator(DataUpdateCoordinator):
         # What is returned here is stored in self.data by the DataUpdateCoordinator
         return VellemanAPIData(self.api.controller_name, devices, deviceInfo)
 
-    def get_device_by_id(
-        self, device_type: DeviceType, device_id: int
+    def get_device_by_unique_id(
+        self, device_type: DeviceType, device_id: int, device_unique_id: int
     ) -> Device | None:
         """Return device by device id."""
         # Called by the binary sensors and sensors to get their updated data from self.data
@@ -90,7 +91,7 @@ class VellemanCoordinator(DataUpdateCoordinator):
             return [
                 device
                 for device in self.data.devices
-                if device.device_type == device_type and device.device_id == device_id
+                if device.device_type == device_type and device.device_id == device_id and device.device_unique_id == device_unique_id
             ][0]
         except IndexError:
             return None

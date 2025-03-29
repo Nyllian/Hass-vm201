@@ -97,6 +97,7 @@ class API:
         # 1 Input sensor
 
         htmlContent = BeautifulSoup(self.get_request("GET", "/names.html").read(), 'html.parser')
+        _LOGGER.debug("get_devices called")
 
         return [
             Device(device_id=1, #el.find("input")["name"][-2:-1],
@@ -105,7 +106,7 @@ class API:
                     el.getText()[0:el.getText().find(" ")].lower()
                 ),
                 device_type=el.getText()[0:el.getText().find(" ")].lower(),
-                name=el.find("input")["value"].replace(" ", "_"),
+                name=el.find("input")["value"], #.replace(" ", "_"),
                 state=self.get_device_value(
                     el.find("input")["name"][-2:-1],
                     el.getText()[0:el.getText().find(" ")].lower()
@@ -113,6 +114,24 @@ class API:
             )
             for el in htmlContent.select("div#content p:not([class])")
         ]
+    
+    def update_device_states(self, devices: list[Device]):
+        """Update the device states"""
+        htmlContent = BeautifulSoup(self.get_request("GET", "/cgi/status.cgi").read(), 'html.parser')
+
+        for dev in devices:
+            if dev.device_type == DeviceType.INPUT_SENSOR:
+                # Buf in the firmware HTML code - the state of the input is within the parent element
+                # i = int(dev.device_unique_id[-1:])
+                # el = htmlContent.find_all("input", { "id" : i })[0]
+                # dev.state = bool(int(el.getText()))
+                dev.state = False
+            if dev.device_type == DeviceType.OUTPUT_SENSOR:
+                i = int(dev.device_unique_id[-1:])
+                state = htmlContent.find("leds").find_all("led")[i].getText()
+                dev.state = bool(int(state))
+
+            _LOGGER.debug("Update DeviceStates for dev: %s", dev)
 
     def get_device_info(self) -> VMDeviceInfo:
         """Return the device info properties"""
@@ -157,9 +176,9 @@ class API:
         if device_type == DeviceType.TEMP_SENSOR:
             return randrange(15, 28)
         if device_type == DeviceType.INPUT_SENSOR:
-            return choice([True, False])
+            return False
         if device_type == DeviceType.OUTPUT_SENSOR:
-            return choice([True, False])
+            return False
         return randrange(1, 10)
 
 
