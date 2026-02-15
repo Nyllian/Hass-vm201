@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 import logging
 from random import choice, randrange
+from typing import Optional
 
 from http.client import (HTTPConnection, HTTPResponse)
 from base64 import b64encode
@@ -49,7 +50,7 @@ class VMDeviceInfo:
 class API:
     """Class for example API."""
 
-    def __init__(self, host: str, user: str, pwd: str) -> None:
+    def __init__(self, host: str, user: Optional[str] = None, pwd: Optional[str] = None) -> None:
         """Initialise."""
         self.host = host
         self.user = user
@@ -58,12 +59,16 @@ class API:
 
     def get_request(self, method, url) -> HTTPResponse:
         """Get a request object"""
-        token = b64encode(f"{self.user}:{self.pwd}".encode('utf-8')).decode("ascii")
-        baseAuthToken = f'Basic {token}'
-
         req = HTTPConnection(self.host)
-        baseHeaders = { 'Authorization' : baseAuthToken }
-        req.request(method, url, headers=baseHeaders)
+
+        # Check if there is a username / password - skip baseAuth
+        if (self.user is not None) and (self.pwd is not None):
+            token = b64encode(f"{self.user}:{self.pwd}".encode('utf-8')).decode("ascii")
+            baseAuthToken = f'Basic {token}'
+            baseHeaders = { 'Authorization' : baseAuthToken }
+            req.request(method, url, headers=baseHeaders)
+        else:
+            req.request(method, url)
         
         return req.getresponse()
 

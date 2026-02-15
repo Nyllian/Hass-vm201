@@ -49,7 +49,14 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     #     your_validate_func, data[CONF_USERNAME], data[CONF_PASSWORD]
     # )
 
-    api = API(data[CONF_HOST], data[CONF_USERNAME], data[CONF_PASSWORD])
+    # Check if username / password was entered
+    if (data[CONF_USERNAME] is not None and data[CONF_PASSWORD] is not None):
+        api = API(data[CONF_HOST], data[CONF_USERNAME], data[CONF_PASSWORD])
+    else:
+        api = API(data[CONF_HOST])
+
+
+    
     try:
         await hass.async_add_executor_job(api.connect)
         # If you cannot connect, raise CannotConnect
