@@ -30,8 +30,8 @@ _LOGGER = logging.getLogger(__name__)
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_HOST, description={"suggested_value": ""}): str,
-        vol.Optional(CONF_USERNAME, description={"suggested_value": "Leave empty if no credentials are configured"}): str,
-        vol.Optional(CONF_PASSWORD, description={"suggested_value": "Leave empty if no credentials are configured"}): str,
+        vol.Optional(CONF_USERNAME, description="Leave empty if no credentials are configured"): str,
+        vol.Optional(CONF_PASSWORD, description="Leave empty if no credentials are configured"): str,
     }
 )
 
